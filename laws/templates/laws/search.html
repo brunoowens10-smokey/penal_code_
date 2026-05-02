@@ -1,0 +1,39 @@
+﻿{% extends 'laws/base.html' %}
+
+{% block title %}Search - Rwanda Penal Code{% endblock %}
+
+{% block breadcrumb %}
+    <span>/</span> <a href="/search/">Search</a>
+{% endblock %}
+
+{% block content %}
+<section class="page-header search-heading">
+    <p class="eyebrow">Search</p>
+    <h1>Find laws by article, offence, or penalty</h1>
+    {% if query %}<p class="result-count">{{ results|length }} result{{ results|length|pluralize }} for "{{ query }}"</p>{% endif %}
+</section>
+
+{% if results %}
+<section class="search-results">
+    {% for article in results %}
+    <a href="/article/{{ article.id }}/" class="result-item">
+        <span class="row-kicker">Article {{ article.number }}</span>
+        <strong>{{ article.title_en|default:'Untitled article' }}</strong>
+        <p>{{ article.content_en|truncatewords:34 }}</p>
+    </a>
+    {% endfor %}
+</section>
+{% elif query %}
+<section class="empty-state large">
+    <h2>No results found</h2>
+    <p>Try another offence name, article number, or penalty keyword.</p>
+</section>
+{% else %}
+<section class="search-suggestions">
+    <a href="/search/?q=theft">theft</a>
+    <a href="/search/?q=imprisonment">imprisonment</a>
+    <a href="/search/?q=genocide">genocide</a>
+    <a href="/search/?q=Article%2057">Article 57</a>
+</section>
+{% endif %}
+{% endblock %}

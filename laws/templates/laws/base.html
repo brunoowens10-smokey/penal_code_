@@ -1,0 +1,113 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>{% block title %}Rwanda Penal Code{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'laws/style.css' %}">
+</head>
+<body>
+<header class="site-header">
+    <nav class="top-nav" aria-label="Primary navigation">
+        <a href="/" class="brand">
+            <img src="{% static 'laws/images/flag.jpg' %}" alt="Rwanda flag">
+            <span>
+                <strong>Rwanda Penal Code</strong>
+                <small>Law No. 68/2018</small>
+            </span>
+        </a>
+        <div class="nav-links">
+            <a href="/">Browse</a>
+            <a href="/search/">Search</a>
+            <a href="#assistant">Ask AI</a>
+        </div>
+        <div class="lang-switcher" aria-label="Language switcher">
+            <a href="/language/?lang=en" class="{% if lang == 'en' %}active{% endif %}">EN</a>
+            <a href="/language/?lang=fr" class="{% if lang == 'fr' %}active{% endif %}">FR</a>
+            <a href="/language/?lang=rw" class="{% if lang == 'rw' %}active{% endif %}">RW</a>
+        </div>
+    </nav>
+    <form class="global-search" method="GET" action="/search/">
+        <label for="site-search">Search the full penal code</label>
+        <div class="search-row">
+            <input id="site-search" type="search" name="q" value="{{ query|default:'' }}" placeholder="Try theft, genocide, Article 57, imprisonment...">
+            <button type="submit">Search</button>
+        </div>
+    </form>
+</header>
+
+<div class="page-shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Home</a>
+        {% block breadcrumb %}{% endblock %}
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+<section class="assistant-panel" id="assistant" aria-labelledby="assistant-title">
+    <div class="assistant-copy">
+        <p class="eyebrow">AI legal research helper</p>
+        <h2 id="assistant-title">Ask the Penal Code</h2>
+        <p>Ask a question and the assistant will answer from the imported articles, with sources you can open.</p>
+    </div>
+    <div class="assistant-box">
+        <form id="assistant-form" class="assistant-form">
+            <textarea id="assistant-question" rows="3" placeholder="Example: What does the law say about theft?"></textarea>
+            <button type="submit">Ask AI</button>
+        </form>
+        <div id="assistant-answer" class="assistant-answer" aria-live="polite">
+            <p class="muted">Your answer will appear here.</p>
+        </div>
+    </div>
+</section>
+
+<footer class="site-footer">
+    <p>Rwanda Penal Code - Law No. 68/2018 of 30/08/2018 - Official Gazette no. Special of 27/09/2018</p>
+</footer>
+
+<script>
+const assistantForm = document.querySelector('#assistant-form');
+const assistantQuestion = document.querySelector('#assistant-question');
+const assistantAnswer = document.querySelector('#assistant-answer');
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+assistantForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const question = assistantQuestion.value.trim();
+    if (!question) {
+        assistantAnswer.innerHTML = '<p class="muted">Type a question first.</p>';
+        return;
+    }
+
+    assistantAnswer.innerHTML = '<p class="muted">Searching the Penal Code...</p>';
+    try {
+        const response = await fetch('/assistant/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ question }),
+        });
+        const data = await response.json();
+        const sources = (data.sources || []).map(source => `
+            <a class="source-link" href="${source.url}">
+                <strong>Article ${source.number}</strong>
+                <span>${source.title}</span>
+            </a>
+        `).join('');
+        assistantAnswer.innerHTML = `
+            <p>${data.answer}</p>
+            ${sources ? `<div class="assistant-sources">${sources}</div>` : ''}
+        `;
+    } catch (error) {
+        assistantAnswer.innerHTML = '<p class="muted">The assistant could not respond. Please try again.</p>';
+    }
+});
+</script>
+</body>
+</html>

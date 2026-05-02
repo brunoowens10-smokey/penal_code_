@@ -1,0 +1,40 @@
+﻿{% extends 'laws/base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-media" style="background-image: linear-gradient(90deg, rgba(10, 20, 18, 0.92), rgba(10, 20, 18, 0.52)), url('{% static 'laws/images/justi.jpg' %}');"></div>
+    <div class="hero-content">
+        <p class="eyebrow">Complete digital reference</p>
+        <h1>Rwanda Penal Code</h1>
+        <p class="hero-lede">Browse, search, and ask questions across the full Law No. 68/2018 determining offences and penalties in general.</p>
+        <div class="hero-actions">
+            <a href="/search/" class="primary-action">Search laws</a>
+            <a href="#assistant" class="secondary-action">Ask AI</a>
+        </div>
+    </div>
+    <div class="stat-strip" aria-label="Database summary">
+        <span><strong>{{ article_count }}</strong> Articles</span>
+        <span><strong>{{ chapter_count }}</strong> Chapters</span>
+        <span><strong>{{ title_count }}</strong> Titles</span>
+    </div>
+</section>
+
+<section class="content-section">
+    <div class="section-heading">
+        <p class="eyebrow">Browse</p>
+        <h2>Titles of the Penal Code</h2>
+    </div>
+    <div class="titles-grid">
+        {% for title in titles %}
+        <a href="/title/{{ title.id }}/" class="title-card">
+            <span class="title-number">Title {{ title.number }}</span>
+            <h3>{% if lang == 'fr' and title.name_fr %}{{ title.name_fr }}{% elif lang == 'rw' and title.name_rw %}{{ title.name_rw }}{% else %}{{ title.name_en }}{% endif %}</h3>
+            <span class="card-meta">{{ title.chapters.count }} chapters</span>
+        </a>
+        {% empty %}
+        <p class="empty-state">No titles have been imported yet.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

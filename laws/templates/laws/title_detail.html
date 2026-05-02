@@ -1,0 +1,26 @@
+﻿{% extends 'laws/base.html' %}
+
+{% block title %}Title {{ title.number }} - Rwanda Penal Code{% endblock %}
+
+{% block breadcrumb %}
+    <span>/</span> <a href="/title/{{ title.id }}/">Title {{ title.number }}</a>
+{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <p class="eyebrow">Title {{ title.number }}</p>
+    <h1>{% if lang == 'fr' and title.name_fr %}{{ title.name_fr }}{% elif lang == 'rw' and title.name_rw %}{{ title.name_rw }}{% else %}{{ title.name_en }}{% endif %}</h1>
+</section>
+
+<section class="list-stack">
+    {% for chapter in chapters %}
+    <a href="/chapter/{{ chapter.id }}/" class="chapter-row">
+        <span class="row-kicker">Chapter {{ chapter.number }}</span>
+        <strong>{% if lang == 'fr' and chapter.name_fr %}{{ chapter.name_fr }}{% elif lang == 'rw' and chapter.name_rw %}{{ chapter.name_rw }}{% else %}{{ chapter.name_en }}{% endif %}</strong>
+        <span>{{ chapter.articles.count }} articles</span>
+    </a>
+    {% empty %}
+    <p class="empty-state">No chapters found.</p>
+    {% endfor %}
+</section>
+{% endblock %}
